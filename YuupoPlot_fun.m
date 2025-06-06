@@ -33,8 +33,8 @@ elseif findstr(fileName,filter) ~= 0
     latitude = data(:,Y); % 緯度
     total_B = data(:,TargetStrengh); % 總磁場強度
     longitude(longitude>180) = longitude(longitude>180)-360;
-    lon_vec = linspace(min(longitude), max(longitude), 4096);
-    lat_vec = linspace(min(latitude), max(latitude), 4096);
+    lon_vec = linspace(min(longitude), max(longitude), 1000);
+    lat_vec = linspace(min(latitude), max(latitude), 1000);
     [LON, LAT] = meshgrid(lon_vec, lat_vec);
 
     % 插值到規則格點
