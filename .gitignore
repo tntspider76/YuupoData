@@ -1,0 +1,54 @@
+# Autosave files
+*.asv
+*.m~
+*.autosave
+*.slx.r*
+*.mdl.r*
+
+# Derived content-obscured files
+*.p
+
+# Compiled MEX files
+*.mex*
+
+# Packaged app and toolbox files
+*.mlappinstall
+*.mltbx
+
+# Deployable archives
+*.ctf
+
+# Generated helpsearch folders
+helpsearch*/
+
+# Code generation folders
+slprj/
+sccprj/
+codegen/
+
+# Cache files
+*.slxc
+
+# Cloud based storage dotfile
+.MATLABDriveTag
+
+# buildtool cache folder
+.buildtool/
+
+# SimBiology backup files
+*.sbproj.backup
+*.sbproj.bak
+
+/global_50kmB_T150_Vsw500_fupper_fobs_output_inu_3D.png
+
+/global_50kmB_T150_Vsw500_fupper_fobs_output_inu_2D.png
+
+/global_50kmB_T150_Vsw300_fupper_fobs_output_inu.txt
+
+/50.txt
+
+/global_100kmB_T150_Vsw200_fupper_fobs_output_inu.txt
+
+/untitled.jpg
+
+/Ploting.m
