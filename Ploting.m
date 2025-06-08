@@ -11,6 +11,6 @@ i=1;
 while i <= datasize
     Name = string(nameddata.name(i));
     disp(Name(1))
-    YuupoPlot_fun('data_folder/',Name(1),1,2,3,'global_75km',false)
+    YuupoPlot_fun('data_folder/',Name(1),1,2,3,'global_75km',true)
     i=i+1;
 end
