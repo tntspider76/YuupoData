@@ -1,16 +1,24 @@
 clc
 clearvars
 close all
-listing = dir("data_folder/");
+
+i=1;
+datafolder = "data_folder/";
+filter = '75kmB';
+
+listing = dir(datafolder);
 tbl = struct2table(listing);
 tbl.date = datetime(tbl.datenum,ConvertFrom="datenum");
 tbl = removevars(tbl,"datenum");
 nameddata = tbl(~matches(tbl.name,[".",".."]),:);
 datasize = size(nameddata,1);
-i=1;
+
+[UpperLimit,LowerLimit] = FindLimit("data_folder/",3,filter);
+
+
 while i <= datasize
     Name = string(nameddata.name(i));
-    disp(Name(1))
-    YuupoPlot_fun('data_folder/',Name(1),1,2,3,'global_100km',false)
+<<<<<<< HEAD
+    YuupoPlot_fun('data_folder/',Name(1),1,2,3,UpperLimit,LowerLimit,filter,true)
     i=i+1;
 end

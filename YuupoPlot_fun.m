@@ -1,4 +1,4 @@
-function [f1,f2] = YuupoPlot_fun(location,fileName,X,Y,TargetStrengh,filter,Plot2D)
+function [f1,f2] = YuupoPlot_fun(location,fileName,X,Y,TargetStrengh,ColorBarLimitUpper,ColorBarLimitLower,filter,Plot2D)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 arguments (Input)
@@ -7,6 +7,8 @@ arguments (Input)
     X
     Y
     TargetStrengh
+    ColorBarLimitUpper
+    ColorBarLimitLower
     filter
     Plot2D
 end
@@ -27,6 +29,7 @@ elseif findstr(fileName,filter) ~= 0
 
     %分離.txt以利命名
     TitleName = split(fileName,".");
+    namespilt = split(fileName,"_");
 
     % 分離欄位
     longitude = data(:,X); % 經度
@@ -42,18 +45,22 @@ elseif findstr(fileName,filter) ~= 0
 
     % 繪圖
     f1 = figure
-    surf(LON, LAT, B_grid) ;  
+    surf(LON, LAT, B_grid) ;
+
     shading interp; % 平滑色彩
     colormap jet;
     colorbar;
+    xlim([-180 180]);
+    ylim([-90 90]);
+    clim([ColorBarLimitLower ColorBarLimitUpper]);
     xlabel('經度 (deg)');
     ylabel('緯度 (deg)');
-    zlabel('TODO')%TODO
-    title(replace(TitleName,"_"," "));
+    zlabel(namespilt(6));
+    title(append(namespilt(2)," ",namespilt(4)));
     set(gca,'YDir','normal'); % 緯度由下往上增加
     view(45,30); % 調整視角，可自由修改
-    exportgraphics(f1,append("png/",TitleName(1),"_3D.png"),"Resolution",300);
-    savefig(f1,append("fig/",TitleName(1),"_3D"));
+    exportgraphics(f1,append("png/",TitleName(1),"_Surf.png"),"Resolution",300);
+    savefig(f1,append("fig/",TitleName(1),"_Surf"));
     %繪製2D圖
     if Plot2D == true
         f2 = figure
@@ -63,12 +70,11 @@ elseif findstr(fileName,filter) ~= 0
         % 在投影上畫磁場強度
         surfm(LAT, LON, B_grid);
         colormap jet;
-        title(replace(TitleName,"_"," "));
+        title(append(namespilt(2)," ",namespilt(4)));
         colorbar;
+        clim([ColorBarLimitLower ColorBarLimitUpper]);
         exportgraphics(f2,append("png/",TitleName(1),"_2D.png"),"Resolution",300);
         savefig(f2,append("fig/",TitleName(1),"_2D"));
     end
 end
-
-
 end
