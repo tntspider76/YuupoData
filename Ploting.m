@@ -18,7 +18,6 @@ datasize = size(nameddata,1);
 
 while i <= datasize
     Name = string(nameddata.name(i));
-<<<<<<< HEAD
     YuupoPlot_fun('data_folder/',Name(1),1,2,3,UpperLimit,LowerLimit,filter,true)
     i=i+1;
 end
