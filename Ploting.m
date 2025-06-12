@@ -4,7 +4,7 @@ close all
 
 i=1;
 datafolder = "data_folder/";
-filter = '70kmB';
+filter = '75kmB';
 
 listing = dir(datafolder);
 tbl = struct2table(listing);
