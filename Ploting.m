@@ -2,7 +2,8 @@ clc
 clearvars
 close all
 
-datafolder = 'data_folder/';
+i=1;
+datafolder = "data_folder/";
 filter = '75kmB';
 
 listing = dir(datafolder);
