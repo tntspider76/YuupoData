@@ -1,10 +1,15 @@
-function [UpperLimit,LowerLimit] = FindLimit(location,target,filter)
-%UNTITLED4 Summary of this function goes here
-%   Detailed explanation goes here
+function [UpperLimit,LowerLimit] = FindLimit(location,targetPos,filter)
+%input:
+%   location : file's location ex. 'data_folder/'
+%   targetPos : Fupper data location ex. 3
+%   filter : Leave '' if not in use
+%output
+%   UpperLimit : Upper Limit found
+%   LowerLimit : Lower Limit found
 arguments (Input)
-    location
-    target
-    filter
+    location char
+    targetPos int16
+    filter char
 end
 
 arguments (Output)
@@ -17,28 +22,26 @@ listing = dir(location);
 tbl = struct2table(listing);
 tbl.date = datetime(tbl.datenum,ConvertFrom="datenum");
 tbl = removevars(tbl,"datenum");
-nameddata = tbl(~matches(tbl.name,[".",".."]),:);
-datasize = size(nameddata,1);
+nameddata = tbl(~matches(tbl.name,[".","..",".DS_Store"]),:);
 
-i=1;
-while i <= datasize
-    Name = string(nameddata.name(i));
-    if findstr(Name,filter) == 0
-    elseif findstr(Name,filter) ~= 0
-        data = readmatrix(fullfile(location,Name));
-        if max(data(:,target)) > Upperlim
-            Upperlim = max(data(:,target));
+for i = 1: height(nameddata)
+    Name = string(nameddata.name(i))
+    if isempty(filter) || contains(Name,filter)
+        try 
+            data = readmatrix(fullfile(location,Name));
+            if max(data(:,targetPos)) > Upperlim
+                Upperlim = max(data(:,targetPos));
+            end
+            if min(data(:,targetPos)) < Lowerlim
+                Lowerlim = min(data(:,targetPos));
+            end
+        catch ME
+            warning('Failed to read file %s: %s', Name, ME.message);
         end
-    
-        if min(data(:,target)) < Lowerlim
-            Lowerlim = min(data(:,target));
-        end
-        
     end
-    i=i+1;
 end
     
-    UpperLimit = Upperlim
-    LowerLimit = Lowerlim
+UpperLimit = Upperlim
+LowerLimit = Lowerlim
 
 end
