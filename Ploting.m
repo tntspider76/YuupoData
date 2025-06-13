@@ -2,15 +2,12 @@ clc
 clearvars
 close all
 
-i=1;
-datafolder = "data_folder/";
-filter = '75kmB';
+datafolder = 'data_folder/';
+filter = '50kmB';
 
-listing = dir(datafolder);
-tbl = struct2table(listing);
-tbl.date = datetime(tbl.datenum,ConvertFrom="datenum");
+tbl = struct2table(dir(datafolder));
 tbl = removevars(tbl,"datenum");
-nameddata = tbl(~matches(tbl.name,[".",".."]),:);
+nameddata = tbl(~matches(tbl.name,[".","..",".DS_Store"]),:);
 
 [UpperLimit,LowerLimit] = FindLimit(datafolder,3,filter);
 

@@ -18,9 +18,7 @@ arguments (Output)
 end
 Upperlim = 0;
 Lowerlim = 0;
-listing = dir(location);
-tbl = struct2table(listing);
-tbl.date = datetime(tbl.datenum,ConvertFrom="datenum");
+tbl = struct2table(dir(location));
 tbl = removevars(tbl,"datenum");
 nameddata = tbl(~matches(tbl.name,[".","..",".DS_Store"]),:);
 
