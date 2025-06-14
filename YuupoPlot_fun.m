@@ -56,7 +56,7 @@ if isempty(filter) || contains(fileName,filter)
         B_grid = griddata(longitude, latitude, total_B, LON, LAT, 'cubic');
 
         % 繪圖
-        f1 = figure
+        f1 = figure(Theme="light")
         surf(LON, LAT, B_grid) ;
 
         %增加軸向限制
@@ -83,7 +83,7 @@ if isempty(filter) || contains(fileName,filter)
     
         %繪製2D圖
         if Plot2D == true
-            f2 = figure
+            f2 = figure(Theme="light")
             axesm('robinson', 'Frame', 'on', 'Grid', 'on', 'ParallelLabel', 'on', 'MeridianLabel', 'on');
             % 設定經緯度範圍
             setm(gca, 'MapLatLimit', [min(latitude) max(latitude)],'MapLonLimit', [(min(longitude)) (max(longitude))]);
