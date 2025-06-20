@@ -47,7 +47,7 @@ if isempty(filter) || contains(fileName,filter)
         longitude = data(:,X); % 經度
         latitude = data(:,Y); % 緯度
         total_B = data(:,DataPos); % 總磁場強度
-        longitude(longitude>180) = longitude(longitude>180)-360;
+        %longitude(longitude>180) = longitude(longitude>180)-360;
         lon_vec = linspace(min(longitude), max(longitude), 1000);
         lat_vec = linspace(min(latitude), max(latitude), 1000);
         [LON, LAT] = meshgrid(lon_vec, lat_vec);
@@ -60,7 +60,7 @@ if isempty(filter) || contains(fileName,filter)
         surf(LON, LAT, B_grid) ;
 
         %增加軸向限制
-        xlim([-180 180]);
+        xlim([0 360]);
         ylim([-90 90]);
         clim([ColorBarLimitLower ColorBarLimitUpper]);
 
@@ -72,7 +72,7 @@ if isempty(filter) || contains(fileName,filter)
         %軸標
         xlabel('經度 (deg)');
         ylabel('緯度 (deg)');
-        zlabel(namespilt(6));
+        zlabel(namespilt(6));%changeThis if error
         title(append(namespilt(2)," ",namespilt(4)));
         set(gca,'YDir','normal'); % 緯度由下往上增加
         view(45,30); % 調整視角，可自由修改
@@ -84,7 +84,7 @@ if isempty(filter) || contains(fileName,filter)
         %繪製2D圖
         if Plot2D == true
             f2 = figure(Theme="light")
-            axesm('robinson', 'Frame', 'on', 'Grid', 'on', 'ParallelLabel', 'on', 'MeridianLabel', 'on');
+            axesm('robinson', 'Frame', 'on', 'Grid', 'on', 'ParallelLabel', 'on', 'MeridianLabel', 'on','maplonlimit',[0 360]);
             % 設定經緯度範圍
             setm(gca, 'MapLatLimit', [min(latitude) max(latitude)],'MapLonLimit', [(min(longitude)) (max(longitude))]);
             % 在投影上畫磁場強度

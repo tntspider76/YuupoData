@@ -2,12 +2,12 @@ clc
 clearvars
 close all
 % 讀取資料
-data = readmatrix('global_50kmB_T150_Vsw300_fupper_fobs_output_inu.txt'); 
+data = readmatrix('global_50kmB_T150_fupper_output.txt'); 
 
 % 分離欄位
 longitude = data(:,1); % 經度
 latitude = data(:,2); % 緯度
-total_B = data(:,3); % 總磁場強度
+total_B = data(:,7); % 總磁場強度
 
 % 建立規則格點
 lon_vec = linspace(min(longitude), max(longitude), 1000);
@@ -15,7 +15,8 @@ lat_vec = linspace(min(latitude), max(latitude), 1000);
 [LON, LAT] = meshgrid(lon_vec, lat_vec);
 
 % 插值到規則格點
-B_grid = griddata(longitude, latitude, total_B, LON, LAT, 'cubic');
+B_grid = griddata(longitude, latitude, total_B, LON, LAT, 'linear');
+B_grid = fillmissing(B_grid, 'nearest');
 % 繪圖
 figure
 surf(LON, LAT, B_grid) ;  
