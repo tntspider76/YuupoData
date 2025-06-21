@@ -3,7 +3,7 @@ clearvars
 close all
 
 datafolder = 'data_folder/';
-filter = '75kmB';
+filter = '85kmB';
 DataPos = 3;
 zlabelPos = 6
 
