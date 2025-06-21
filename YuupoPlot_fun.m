@@ -1,4 +1,4 @@
-function [f1,f2] = YuupoPlot_fun(location,fileName,X,Y,DataPos,ColorBarLimitUpper,ColorBarLimitLower,filter,Plot2D)
+function [f1,f2] = YuupoPlot_fun(location,fileName,X,Y,DataPos,zlabelPos,ColorBarLimitUpper,ColorBarLimitLower,filter,Plot2D,needsLog)
 %location(Char) : file's location ex. 'data_folder/'
 %fileName(Char) : file's name for plotting ex. 'global_50kmB_T150_Vsw300_fupper_fobs_output_inu.txt'
 %X(int) : X axis (longitude) ex. 1
@@ -8,16 +8,19 @@ function [f1,f2] = YuupoPlot_fun(location,fileName,X,Y,DataPos,ColorBarLimitUppe
 %ColorBarLimitLower : using FindLimit function to find Max and Min Fobs
 %filter(char) : Leave '' if not in use
 %Plot2D(bool) : boolen for going to plot 2D fig
+%NeedsLog(bool) : does Data need Log2
 arguments (Input)
     location char
     fileName char
     X int16
     Y int16
     DataPos int16
+    zlabelPos int16
     ColorBarLimitUpper
     ColorBarLimitLower
     filter
     Plot2D
+    needsLog
 end
 
 arguments (Output)
@@ -36,8 +39,6 @@ if isempty(filter) || contains(fileName,filter)
         %創建存檔資料夾
         if ~exist('fig','dir'), mkdir('fig'); end
         if ~exist('png','dir'), mkdir('png'); end
-        %mkdir fig/;
-        %mkdir png/;
 
         %分離.txt以利命名
         TitleName = split(fileName,".");
@@ -47,6 +48,11 @@ if isempty(filter) || contains(fileName,filter)
         longitude = data(:,X); % 經度
         latitude = data(:,Y); % 緯度
         total_B = data(:,DataPos); % 總磁場強度
+        if needsLog
+            total_B = log2(total_B);
+            ColorBarLimitUpper = log2(ColorBarLimitUpper);
+            ColorBarLimitLower = log2(ColorBarLimitLower);
+        end
         %longitude(longitude>180) = longitude(longitude>180)-360;
         lon_vec = linspace(min(longitude), max(longitude), 1000);
         lat_vec = linspace(min(latitude), max(latitude), 1000);
@@ -65,14 +71,14 @@ if isempty(filter) || contains(fileName,filter)
         clim([ColorBarLimitLower ColorBarLimitUpper]);
 
         shading interp; % 平滑色彩
-        colormap jet;
+        colormap("jet");
         colorbar;
 
     
         %軸標
         xlabel('經度 (deg)');
         ylabel('緯度 (deg)');
-        zlabel(namespilt(6));%changeThis if error
+        zlabel(namespilt(zlabelPos));%changeThis if error
         title(append(namespilt(2)," ",namespilt(4)));
         set(gca,'YDir','normal'); % 緯度由下往上增加
         view(45,30); % 調整視角，可自由修改
@@ -91,7 +97,7 @@ if isempty(filter) || contains(fileName,filter)
             surfm(LAT, LON, B_grid);
             title(append(namespilt(2)," ",namespilt(4)));
             colorbar;
-            colormap jet;
+            colormap("jet");
             clim([ColorBarLimitLower ColorBarLimitUpper]);
             exportgraphics(f2,append("png/",TitleName(1),"_2D.png"),"Resolution",300);
             savefig(f2,append("fig/",TitleName(1),"_2D"));

@@ -8,6 +8,7 @@ data = readmatrix('global_50kmB_T150_fupper_output.txt');
 longitude = data(:,1); % 經度
 latitude = data(:,2); % 緯度
 total_B = data(:,7); % 總磁場強度
+B_log = log(total_B)
 
 % 建立規則格點
 lon_vec = linspace(min(longitude), max(longitude), 1000);
