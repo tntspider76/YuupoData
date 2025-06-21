@@ -48,10 +48,12 @@ if isempty(filter) || contains(fileName,filter)
         longitude = data(:,X); % 經度
         latitude = data(:,Y); % 緯度
         total_B = data(:,DataPos); % 總磁場強度
+        colorBarLable = namespilt(zlabelPos);
         if needsLog
             total_B = log2(total_B);
             ColorBarLimitUpper = log2(ColorBarLimitUpper);
             ColorBarLimitLower = log2(ColorBarLimitLower);
+            colorBarLable = append(namespilt(zlabelPos),"(log2)")
         end
         %longitude(longitude>180) = longitude(longitude>180)-360;
         lon_vec = linspace(min(longitude), max(longitude), 1000);
@@ -72,7 +74,8 @@ if isempty(filter) || contains(fileName,filter)
 
         shading interp; % 平滑色彩
         colormap("jet");
-        colorbar;
+        c1 = colorbar;
+        c1.Label.String = colorBarLable;
 
     
         %軸標
@@ -84,8 +87,8 @@ if isempty(filter) || contains(fileName,filter)
         view(45,30); % 調整視角，可自由修改
     
         %存圖
-        exportgraphics(f1,append("png/",TitleName(1),"_Surf.png"),"Resolution",300);
-        savefig(f1,append("fig/",TitleName(1),"_Surf"));
+        exportgraphics(f1,append("png/",namespilt(2),"/surf/",TitleName(1),"_Surf.png"),"Resolution",300);
+        savefig(f1,append("fig/",namespilt(2),"/surf/",TitleName(1),"_Surf"));
     
         %繪製2D圖
         if Plot2D == true
@@ -95,12 +98,15 @@ if isempty(filter) || contains(fileName,filter)
             setm(gca, 'MapLatLimit', [min(latitude) max(latitude)],'MapLonLimit', [(min(longitude)) (max(longitude))]);
             % 在投影上畫磁場強度
             surfm(LAT, LON, B_grid);
-            title(append(namespilt(2)," ",namespilt(4)));
-            colorbar;
-            colormap("jet");
             clim([ColorBarLimitLower ColorBarLimitUpper]);
-            exportgraphics(f2,append("png/",TitleName(1),"_2D.png"),"Resolution",300);
-            savefig(f2,append("fig/",TitleName(1),"_2D"));
+
+            title(append(namespilt(2)," ",namespilt(4)));
+            colormap("jet");
+            c2 = colorbar;
+            c2.Label.String = colorBarLable;
+            
+            exportgraphics(f2,append("png/",namespilt(2),"/2D/",TitleName(1),"_2D.png"),"Resolution",300);
+            savefig(f2,append("fig/",namespilt(2),"/2D/",TitleName(1),"_2D"));
         end
     catch ME
         warning('Failed to read file %s: %s', fileName, ME.message);
