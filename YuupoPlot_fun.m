@@ -70,6 +70,7 @@ if isempty(filter) || contains(fileName,filter)
 
         % 繪圖
         f1 = figure(Theme="light")
+        %f1.Position(16:9) = [4096 2160];
         surf(LON, LAT, B_grid) ;
 
         %增加軸向限制
@@ -98,6 +99,7 @@ if isempty(filter) || contains(fileName,filter)
         %繪製2D圖
         if Plot2D == true
             f2 = figure(Theme="light")
+            %f2.Position(16:9) = [4096 2160];
             axesm('robinson', 'Frame', 'on', 'Grid', 'on', 'ParallelLabel', 'on', 'MeridianLabel', 'on','maplonlimit',[0 360]);
             % 設定經緯度範圍
             setm(gca, 'MapLatLimit', [min(latitude) max(latitude)],'MapLonLimit', [(min(longitude)) (max(longitude))]);
