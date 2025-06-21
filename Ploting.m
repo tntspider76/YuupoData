@@ -3,7 +3,7 @@ clearvars
 close all
 
 datafolder = 'data_folder/';
-filter = '75kmB';
+filter = '100kmB';
 DataPos = 3;
 
 tbl = struct2table(dir(datafolder));
