@@ -4,6 +4,15 @@ close all
 % 讀取資料
 data = readmatrix('global_50kmB_T150_fupper_output.txt'); 
 
+TitleName = split('global_50kmB_T150_fupper_output.txt',".");
+namespilt = split('global_50kmB_T150_fupper_output.txt',"_");
+append(namespilt(2),'1')
+file = fullfile('fig',namespilt(2))
+        %if ~exist(file(1)),  mkdir(fullfile('fig/',namespilt(2))); end
+        %if ~exist(file(1)),  mkdir(fullfile('png/',namespilt(2))); end
+        mkdir(append("fig/",namespilt(2)));
+
+
 % 分離欄位
 longitude = data(:,1); % 經度
 latitude = data(:,2); % 緯度

@@ -39,10 +39,15 @@ if isempty(filter) || contains(fileName,filter)
         %創建存檔資料夾
         if ~exist('fig','dir'), mkdir('fig'); end
         if ~exist('png','dir'), mkdir('png'); end
+        
 
         %分離.txt以利命名
         TitleName = split(fileName,".");
         namespilt = split(fileName,"_");
+        mkdir(append("fig/surf/",namespilt(2)));
+        mkdir(append("fig/2D/",namespilt(2)));
+        mkdir(append("png/surf/",namespilt(2)));
+        mkdir(append("png/2D/",namespilt(2)));
 
         % 分離欄位
         longitude = data(:,X); % 經度
@@ -87,8 +92,8 @@ if isempty(filter) || contains(fileName,filter)
         view(45,30); % 調整視角，可自由修改
     
         %存圖
-        exportgraphics(f1,append("png/",namespilt(2),"/surf/",TitleName(1),"_Surf.png"),"Resolution",300);
-        savefig(f1,append("fig/",namespilt(2),"/surf/",TitleName(1),"_Surf"));
+        exportgraphics(f1,append("png/surf/",namespilt(2),"/",TitleName(1),"_Surf.png"),"Resolution",300);
+        savefig(f1,append("fig/surf/",namespilt(2),"/",TitleName(1),"_Surf"));
     
         %繪製2D圖
         if Plot2D == true
@@ -105,8 +110,8 @@ if isempty(filter) || contains(fileName,filter)
             c2 = colorbar;
             c2.Label.String = colorBarLable;
             
-            exportgraphics(f2,append("png/",namespilt(2),"/2D/",TitleName(1),"_2D.png"),"Resolution",300);
-            savefig(f2,append("fig/",namespilt(2),"/2D/",TitleName(1),"_2D"));
+            exportgraphics(f2,append("png/2D/",namespilt(2),"/",TitleName(1),"_2D.png"),"Resolution",300);
+            savefig(f2,append("fig/2D/",namespilt(2),"/",TitleName(1),"_2D"));
         end
     catch ME
         warning('Failed to read file %s: %s', fileName, ME.message);
