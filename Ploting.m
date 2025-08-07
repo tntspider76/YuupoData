@@ -1,16 +1,21 @@
 clc
 clearvars
-close all
+%close all
 
 datafolder = 'data_folder/';
-filter = '95kmB';
+%datafolder = 'Fupper/';
+filter = '85kmB';
+%filter = '';
+%DataPos = 3,7;
 DataPos = 3;
-zlabelPos = 6
+%zlabelPos = 6,4;
+zlabelPos = 6;
 
 tbl = struct2table(dir(datafolder));
 tbl = removevars(tbl,"datenum");
 nameddata = tbl(~matches(tbl.name,[".","..",".DS_Store"]),:);
 
+YuupoPlot_checkFolder(50,100,5);
 [UpperLimit,LowerLimit] = FindLimit(datafolder,DataPos,filter);
 
 for i = 1:height(nameddata)

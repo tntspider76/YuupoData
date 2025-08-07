@@ -23,7 +23,7 @@ tbl = removevars(tbl,"datenum");
 nameddata = tbl(~matches(tbl.name,[".","..",".DS_Store"]),:);
 
 for i = 1: height(nameddata)
-    Name = string(nameddata.name(i))
+    Name = string(nameddata.name(i));
     if isempty(filter) || contains(Name,filter)
         try 
             data = readmatrix(fullfile(location,Name));
@@ -34,12 +34,12 @@ for i = 1: height(nameddata)
                 Lowerlim = min(data(:,targetPos));
             end
         catch ME
-            warning('Failed to read file %s: %s', Name, ME.message);
+            warning('%s: %s', Name, ME.message);
         end
     end
 end
     
-UpperLimit = Upperlim
-LowerLimit = Lowerlim
+UpperLimit = Upperlim;
+LowerLimit = Lowerlim;
 
 end
