@@ -40,24 +40,38 @@ if isempty(filter) || contains(fileName,filter)
         TitleName = split(fileName,".");
         namespilt = split(fileName,"_");
         titleComp = [extract(namespilt(2),(digitsPattern(2)|digitsPattern(3)) + "km"),extract(namespilt(4),digitsPattern(3))];
-        
+        titleComp(1) = regexprep(titleComp(1), '(\d+)\s*km', '$1 km')
         if length(titleComp) == 1
             titleRe = titleComp(1);
         else
-            titleRe = compose("%s Vsw = %s km/s",string(titleComp));
+            titleRe = compose("%s Vsw= %s km/s",string(titleComp));
         end
 
         % 分離欄位
         longitude = data(:,X); % 經度
         latitude = data(:,Y); % 緯度
         total_B = data(:,DataPos); % 總磁場強度
-        colorBarLable = append(namespilt(zlabelPos),"(Hz)");
+        
+        tokens = regexp(string(namespilt(6)), '^([A-Za-z])([A-Za-z0-9_]*)$', 'tokens');
+        if ~isempty(tokens)
+            head = tokens{1}{1};
+            tail = tokens{1}{2};
+
+            if tail ~= ""
+                colorBarLable = head + "_{" + tail + "} (Hz)"
+            else
+                colorBarLable = head
+            end
+        else
+            colorBarLable = targetName;
+        end
         if needsLog
             total_B = log10(total_B);
             ColorBarLimitUpper = log10(ColorBarLimitUpper);
             ColorBarLimitLower = log10(ColorBarLimitLower);
             colorBarLable = append("log10(",namespilt(zlabelPos),",Hz)");
         end
+        longitude = wrapTo180(longitude);
         %longitude(longitude>180) = longitude(longitude>180)-360;
         lon_vec = linspace(min(longitude), max(longitude), 1000);
         lat_vec = linspace(min(latitude), max(latitude), 1000);
@@ -72,7 +86,7 @@ if isempty(filter) || contains(fileName,filter)
         surf(LON, LAT, B_grid);
 
         %增加軸向限制
-        xlim([0 360]);
+        xlim([-180 180]);
         ylim([-90 90]);
         clim([ColorBarLimitLower ColorBarLimitUpper]);
 
@@ -86,9 +100,10 @@ if isempty(filter) || contains(fileName,filter)
         xlabel('經度 (deg)');
         ylabel('緯度 (deg)');
         zlabel(append(namespilt(zlabelPos),"(Hz)"));
-        title(titleRe);
-        set(gca,'YDir','normal'); % 緯度由下往上增加
-        view(45,30); % 調整視角，可自由修改
+        title(titleRe,'FontSize',16);
+        set(gca,'YDir','normal');
+        view(45,30); % 調整視角，可修改
+        box off;
     
         %存圖
         exportgraphics(f1,append("png/surf/",namespilt(2),"/",TitleName(1),"_Surf.png"),"Resolution",300);
@@ -98,18 +113,19 @@ if isempty(filter) || contains(fileName,filter)
         if Plot2D == true
             f2 = figure(Theme="light");
             %f2.Position(3630:1760) = [3630 1760];
-            axesm('robinson', 'Frame', 'on', 'Grid', 'on', 'ParallelLabel', 'on', 'MeridianLabel', 'on','maplonlimit',[0 360]);
+            axesm('eckert4','Frame','on','Grid','on','ParallelLabel','on','MeridianLabel','on','MLabelLocation',60,'maplonlimit',[-180 180]);
             % 設定經緯度範圍
             setm(gca, 'MapLatLimit', [min(latitude) max(latitude)],'MapLonLimit', [(min(longitude)) (max(longitude))]);
             % 在投影上畫磁場強度
             surfm(LAT, LON, B_grid);
             clim([ColorBarLimitLower ColorBarLimitUpper]);
 
-            title(titleRe);
+            title(titleRe,'FontSize',16);
             colormap("jet");
             c2 = colorbar;
             c2.Label.String = colorBarLable;
-            
+            box off;
+
             exportgraphics(f2,append("png/2D/",namespilt(2),"/",TitleName(1),"_2D.png"),"Resolution",300);
             %savefig(f2,append("fig/2D/",namespilt(2),"/",TitleName(1),"_2D"));
         end

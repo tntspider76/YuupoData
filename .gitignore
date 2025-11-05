@@ -63,3 +63,6 @@ LonTesting.m
 *.fig
 *.png
 *.jpg
+*.png
+/png
+Ravatetal_JGR2020_LunarL1MagneticModelFields_LPgrad.dat
