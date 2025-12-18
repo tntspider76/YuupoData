@@ -71,7 +71,7 @@ if isempty(filter) || contains(fileName,filter)
             ColorBarLimitLower = log10(ColorBarLimitLower);
             colorBarLable = append("log10(",namespilt(zlabelPos),",Hz)");
         end
-        longitude = wrapTo180(longitude);
+        %longitude = wrapTo180(longitude);
         %longitude(longitude>180) = longitude(longitude>180)-360;
         lon_vec = linspace(min(longitude), max(longitude), 1000);
         lat_vec = linspace(min(latitude), max(latitude), 1000);
@@ -86,7 +86,7 @@ if isempty(filter) || contains(fileName,filter)
         surf(LON, LAT, B_grid);
 
         %增加軸向限制
-        xlim([-180 180]);
+        xlim([0 360]);
         ylim([-90 90]);
         clim([ColorBarLimitLower ColorBarLimitUpper]);
 
@@ -106,27 +106,72 @@ if isempty(filter) || contains(fileName,filter)
         box off;
     
         %存圖
-        exportgraphics(f1,append("png/surf/",namespilt(2),"/",TitleName(1),"_Surf.png"),"Resolution",300);
+        exportgraphics(f1,append("png/surf/",extract(namespilt(2),(digitsPattern(2)|digitsPattern(3))),"/",TitleName(1),"_Surf.png"),"Resolution",300);
+        close
         %savefig(f1,append("fig/surf/",namespilt(2),"/",TitleName(1),"_Surf"));
     
         %繪製2D圖
         if Plot2D == true
             f2 = figure(Theme="light");
             %f2.Position(3630:1760) = [3630 1760];
-            axesm('eckert4','Frame','on','Grid','on','ParallelLabel','on','MeridianLabel','on','MLabelLocation',60,'maplonlimit',[-180 180]);
+            axesm('eckert4','Frame','on','Grid','on','ParallelLabel','off','MeridianLabel','on','MLabelLocation',60,'maplonlimit',[0 360]);
             % 設定經緯度範圍
             setm(gca, 'MapLatLimit', [min(latitude) max(latitude)],'MapLonLimit', [(min(longitude)) (max(longitude))]);
             % 在投影上畫磁場強度
+            
+            drawnow
+
+            latLabels  = [-90 -75 -60 -45 -30 -15 0 15 30 45 60 75 90];
+            lonLabelAt = min(LON,[],'all');
+    
+            hLat = gobjects(numel(latLabels),1);   % 存緯度文字 handle
+    
+            for j = 1:numel(latLabels)
+                latv = latLabels(j);
+    
+                if latv > 0
+                    txt = sprintf('%d° N', latv);
+                elseif latv < 0
+                txt = sprintf('%d° S', abs(latv));
+                else
+                    txt = '0°';
+                end
+    
+                hLat(j) = textm(latv, lonLabelAt, txt, ...
+                    'HorizontalAlignment','right', ...
+                    'FontSize',9, ...
+                    'Clipping','off');   % 重要：避免被裁切
+            end
+        
+            drawnow;  % 確保座標軸範圍已確定
+        
+            xl = xlim(gca);
+            dx = 0.015 * range(xl);
+        
+            for j = 1:numel(hLat)
+                latv = latLabels(j);
+                p = hLat(j).Position;
+                dx1 = 0.015 + latv^2 * 0.00003 + dx * abs(latv) *0.01
+                p(1) = p(1) - dx1;    % 往左移
+                hLat(j).Position = p;
+            end
             surfm(LAT, LON, B_grid);
             clim([ColorBarLimitLower ColorBarLimitUpper]);
 
-            title(titleRe,'FontSize',16);
+            title(titleRe,'FontSize',36);
             colormap("jet");
             c2 = colorbar;
             c2.Label.String = colorBarLable;
-            box off;
+            box off;hM = findall(gca, 'Tag', 'MLabel');
+            for L = 1:numel(hM)
+                str = hM(L).String
+                str = regexprep(str, '\s*[E]$', '');
+                hM(L).String = str;
+            end
 
-            exportgraphics(f2,append("png/2D/",namespilt(2),"/",TitleName(1),"_2D.png"),"Resolution",300);
+
+            exportgraphics(f2,append("png/2D/",extract(namespilt(2),(digitsPattern(2)|digitsPattern(3))),"/",TitleName(1),"_2D.png"),"Resolution",300);
+            close
             %savefig(f2,append("fig/2D/",namespilt(2),"/",TitleName(1),"_2D"));
         end
     catch ME

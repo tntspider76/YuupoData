@@ -1,9 +1,5 @@
 clc; clearvars; close all;
 
-files = 'Ravatetal_JGR2020_LunarL1MagneticModelFields_LPgrad.dat';
-data = readmatrix(files);
-TitleName = split(files,".");
-
 ColormapForYuupo = [0	0	0.504000000000000
 0	0	0.508000000000000
 0	0	0.512000000000000
@@ -1003,61 +999,157 @@ ColormapForYuupo = [0	0	0.504000000000000
 0.996800000000000	0.007905882352941	0
 0.997866666666667	0.005270588235294	0
 0.998933333333333	0.002635294117647	0
-1.000000000000000	0	0]
+1.000000000000000	0	0];
+
+files = ["Ravatetal_JGR2020_LunarL1MagneticModelFields_LPgrad.dat", ...
+         "Ravat_surfaceB_1x1_data.txt"];
+
+nFiles = numel(files);
+
+Grids = cell(nFiles,1);      % 裡面會放一個 struct，有 Btot/Br/... 的格點
+LonGrids = cell(nFiles,1);   % 對應的 LON
+LatGrids = cell(nFiles,1);   % 對應的 LAT
+FileBaseNames = cell(nFiles,1);
+
+all_Btot   = [];
+all_Br     = [];
+all_Btheta = [];
+all_Bphi   = [];
+
+for k = 1:nFiles
+    data = readmatrix(files(k));
+    % 拿掉副檔名當作輸出用的前綴
+    tmp = split(files(k), ".");
+    FileBaseNames{k} = tmp(1);
+
+    lon = data(:,1);
+    lat = data(:,2);
+
+    
+    Btot   = data(:,6);
+    Br     = data(:,3);
+    Btheta = data(:,4);
+    Bphi   = data(:,5);
+
+    all_Btot   = [all_Btot;   Btot];
+    all_Br     = [all_Br;     Br];
+    all_Btheta = [all_Btheta; Btheta];
+    all_Bphi   = [all_Bphi;   Bphi];
+
+    
+    lon_u = unique(lon);
+    lat_u = unique(lat);
+    nlon = numel(lon_u);
+    nlat = numel(lat_u);
+
+    [~, idx_lon] = ismember(lon, lon_u);
+    [~, idx_lat] = ismember(lat, lat_u);
+
+    toGrid = @(v) accumarray([idx_lat, idx_lon], v, [nlat, nlon], @mean, NaN);
+
+    G = struct();
+    G.Btot   = toGrid(Btot);
+    G.Br     = toGrid(Br);
+    G.Btheta = toGrid(Btheta);
+    G.Bphi   = toGrid(Bphi);
+
+    [LON, LAT] = meshgrid(lon_u, lat_u);
+
+    Grids{k}    = G;
+    LonGrids{k} = LON;
+    LatGrids{k} = LAT;
+end
+
+globalMin = [
+    min(all_Btot,   [], 'omitnan')
+    min(all_Br,     [], 'omitnan')
+    min(all_Btheta, [], 'omitnan')
+    min(all_Bphi,   [], 'omitnan')
+];
+
+globalMax = [
+    max(all_Btot,   [], 'omitnan')
+    max(all_Br,     [], 'omitnan')
+    max(all_Btheta, [], 'omitnan')
+    max(all_Bphi,   [], 'omitnan')
+];
+
+titles    = {'B_{tot}', 'B_{r}', 'B_{\theta}', 'B_{\phi}'};
+titles_data  = {'0.1^\circx0.1^\circ', '1^\circx1^\circ'};
+titlesave = {'B_tot',   'B_r',   'B_theta',    'B_phi'};
+
+for k = 1:nFiles
+    G   = Grids{k};
+    LON = LonGrids{k};
+    LAT = LatGrids{k};
+
+    fields = {G.Btot, G.Br, G.Btheta, G.Bphi};
+
+    for i = 1:4
+        f = figure(Theme="light");
+        axesm('eckert4','Frame','on','Grid','on','ParallelLabel','off', ...
+              'MeridianLabel','on','MLabelLocation',60,'maplonlimit',[0 360]);
+
+        setm(gca, ...
+             'MapLatLimit',[min(LAT,[],'all') max(LAT,[],'all')], ...
+             'MapLonLimit',[min(LON,[],'all') max(LON,[],'all')]);
+        
+        hM = findall(gca, 'Tag', 'MLabel');
+        for L = 1:numel(hM)
+            str = hM(L).String;
+            str = regexprep(str, '\s*[E]$', '');
+            hM(L).String = str;
+        end
+
+        pcolorm(LAT, LON, fields{i});
+        drawnow
+
+        latLabels  = [-90 -75 -60 -45 -30 -15 0 15 30 45 60 75 90];
+        lonLabelAt = min(LON,[],'all');
+
+        hLat = gobjects(numel(latLabels),1);   % 存緯度文字 handle
+
+        for j = 1:numel(latLabels)
+            latv = latLabels(j);
+
+            if latv > 0
+                txt = sprintf('%d° N', latv);
+            elseif latv < 0
+            txt = sprintf('%d° S', abs(latv));
+            else
+                txt = '0°';
+            end
+
+            hLat(j) = textm(latv, lonLabelAt, txt, ...
+                'HorizontalAlignment','right', ...
+                'FontSize',9, ...
+                'Clipping','off');   % 重要：避免被裁切
+        end
+    
+        drawnow;  % 確保座標軸範圍已確定
+    
+        xl = xlim(gca);
+        dx = 0.015 * range(xl);
+    
+        for j = 1:numel(hLat)
+            latv = latLabels(j);
+            p = hLat(j).Position;
+            dx1 = 0.015 + latv^2 * 0.00003 + dx * abs(latv) *0.01
+            p(1) = p(1) - dx1;    % 往左移
+            hLat(j).Position = p;
+        end
 
 
-lon = data(:,1);
-lat = data(:,2);
-Btot   = data(:,6);
-Br     = data(:,3);
-Btheta = data(:,4);
-Bphi   = data(:,5);
+        cb = colorbar;
+        fieldMax = max(fields{i}(:), [], 'omitnan');
+        fieldMin = min(fields{i}(:), [], 'omitnan');
+        clim([globalMin(i) globalMax(i)]);
+        cb.Label.String = "nT";
+        colormap(ColormapForYuupo);
+        box off;
 
-%fieldMAX = max(Btot);
-%fieldMIN = min(Btot);
-%YuupoPlot_fun('',files,1,2,6,2,fieldMAX,fieldMIN,'',true,false);
-
-
-
-lon = wrapTo180(lon);
-
-lon_u = unique(lon);
-lat_u = unique(lat);
-nlon = numel(lon_u);
-nlat = numel(lat_u);
-
-[~, idx_lon] = ismember(lon, lon_u);
-[~, idx_lat] = ismember(lat, lat_u);
-
-toGrid = @(v) accumarray([idx_lat, idx_lon], v, [nlat, nlon], @mean, NaN);
-
-G = struct();
-G.Btot   = toGrid(Btot);
-G.Br     = toGrid(Br);
-G.Btheta = toGrid(Btheta);
-G.Bphi   = toGrid(Bphi);
-
-[LON, LAT] = meshgrid(lon_u, lat_u);
-fields = {G.Btot, G.Br , G.Btheta, G.Bphi};
-titles = {'B_{tot}', 'B_{r}', 'B_{theta}', 'B_{phi}'};
-Bs = {Btot ,Br,Btheta,Bphi};
-%ticks = [-400 -200 -10 -5 -1 1 5 10 200 400];
-for i = 1:4
-    fieldMAX = max(Bs{i});
-    fieldMIN = min(Bs{i});
-
-    f = figure(Theme="light");
-    axesm('eckert4','Frame','on','Grid','on','ParallelLabel','on','MeridianLabel','off','MLabelLocation',60,'maplonlimit',[-180 180]);
-    setm(gca,'MapLatLimit',[min(lat) max(lat)], 'MapLonLimit',[min(lon) max(lon)]);
-    pcolorm(LAT, LON, fields{i});
-    %shading flat; tightmap
-    title(fields{i});
-    cb = colorbar;
-    %cb.Ticks = ticks;
-    %cb.Label.String = 'nT';
-    clim([fieldMIN fieldMAX]);
-    colormap(ColormapForYuupo);
-    box off;
-    title(append(titles(i)," Min:",string(fieldMIN)," Max:", string(fieldMAX)),'FontSize',16);
-    exportgraphics(f,append("png/2D/",TitleName(1), titles(i),".png"),"Resolution",300);
+        title(sprintf('%s (%s)  Min: %.3f nT  Max: %.3f nT',titles{i}, titles_data{k}, fieldMin, fieldMax), 'FontSize', 26);
+        outName = "png/2D/" + FileBaseNames{k} + "_" + titlesave{i} + ".png";
+        exportgraphics(f, outName, "Resolution", 300);
+    end
 end
